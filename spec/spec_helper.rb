@@ -8,6 +8,7 @@ end
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'esrp/all'
 
+require_relative './test_vectors'
 Dir[File.join(Dir.pwd, 'spec/shared_examples/**/*.rb')].each { |f| require f }
 
 RSpec.configure do |config|

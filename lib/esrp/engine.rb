@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'esrp/group'
+require 'openssl' # FIXME - this is because of the lack of proper BigNumber implementation in ruby
 
 module ESRP
   ##
@@ -29,9 +30,18 @@ module ESRP
   # In this way, we can build Server or Client compatible with almost every existing
   # implementation. But if it's not necessary, the default engines are recommended.
   #
+  # One more thing to mention: design docs says "All arithmetic is done modulo N",
+  # but it's not clear what does it mean. After reviewing actual implementations,
+  # the most popular interpretation is:
+  #
+  # * "a^b" operation treats as "a^b mod N"
+  # * "B" have an additional "mod N" in the end (see https://www.computest.nl/blog/exploiting-two-buggy-srp-implementations/)
+  #
+  # Other interpretations are not supported, but could be monkey-patched (mostly
+  # additional "(u * x mod N)" in client S).
+  #
   # Glossary (as seen on http://srp.stanford.edu/design.html):
   #   N    A large safe prime (N = 2q+1, where q is prime)
-  #        All arithmetic is done modulo N.
   #   g    A generator modulo N
   #   k    Multiplier parameter k = H(N, g)
   #   s    User's salt
@@ -161,6 +171,10 @@ module ESRP
     #
     # Proves that the server has a valid verifier (v)
     #
+    # As for M1, HMAC with 'K' as key may be used:
+    #
+    #   M2 = HMAC(K, A | M)
+    #
     # Params:
     # - aa {ESRP::Value} client ephemeral value (A)
     # - mm {ESRP::Value} validation message (M)
@@ -182,13 +196,13 @@ module ESRP
     # Returns: {ESRP::Value} multiplier parameter (k)
     #
     def k
-      # TODO
+      @k ||= crypto.H(@N, pad(@g))
     end
 
     ##
     # Calculate password verifier (v)
     #
-    #   v = g^x mod N
+    #   v = g^x
     #
     # Params:
     # - x {ESRP::Value} private key (x)
@@ -196,13 +210,13 @@ module ESRP
     # Returns: {ESRP::Value} password verifier (v)
     #
     def calc_v(x)
-      # TODO
+      mod_exp(@g, x)
     end
 
     ##
     # Calculate public client ephemeral value (A)
     #
-    #   A = g^a mod N
+    #   A = g^a
     #
     # The host MUST abort the authentication if A mod N == 0
     #
@@ -212,15 +226,17 @@ module ESRP
     # Returns: {ESRP::Value} public client ephemeral value (A)
     #
     def calc_A(a)
-      # TODO
+      mod_exp(@g, a)
     end
 
     ##
     # Calculate public server ephemeral value (B)
     #
-    #   B = kv + g^b mod N
+    #   B = kv + g^b % N
     #
-    # The client MUST abort authentication if B mod N == 0
+    # The client MUST abort authentication if B % N == 0
+    #
+    # Note the additional mod N in the end: https://www.computest.nl/blog/exploiting-two-buggy-srp-implementations/
     #
     # Params:
     # - b {ESRP::Value} secret server ephemeral value (b)
@@ -228,7 +244,9 @@ module ESRP
     # Returns: {ESRP::Value} public server ephemeral value (B)
     #
     def calc_B(b, v)
-      # TODO
+      result = (k.int * v.int + mod_exp(@g, b).int) % @N.int
+
+      Value.new(result)
     end
 
     ##
@@ -244,13 +262,13 @@ module ESRP
     # Returns: {ESRP::Value} random scrambling parameter (u)
     #
     def calc_u(aa, bb)
-      # TODO
+      crypto.H(pad(aa), pad(bb))
     end
 
     ##
     # Calculate client session key (S)
     #
-    #   S = (B - (k * g^x)) ^ (a + (u * x)) mod N
+    #   S = (B - (k * g^x)) ^ (a + (u * x))
     #
     # Params:
     # - bb {ESRP::Value} public server ephemeral value (B)
@@ -261,13 +279,16 @@ module ESRP
     # Returns: {ESRP::Value} client session key (S)
     #
     def calc_client_S(bb, a, x, u)
-      # TODO
+      left  = bb.int - k.int * mod_exp(@g, x).int
+      right = a.int + u.int * x.int
+
+      mod_exp(Value.new(left), Value.new(right))
     end
 
     ##
     # Calculate server session key (S)
     #
-    #   S = (A * v^u) ^ b mod N
+    #   S = (A * v^u) ^ b
     #
     # Params:
     # - aa {ESRP::Value} client ephemeral value (A)
@@ -278,7 +299,7 @@ module ESRP
     # Returns: {ESRP::Value} server session key (S)
     #
     def calc_server_S(aa, b, v, u)
-      # TODO
+      mod_exp(Value.new(aa.int * mod_exp(v, u).int), b)
     end
 
     ##
@@ -293,8 +314,10 @@ module ESRP
     # Params:
     # - ss {ESPR::Value} premaster secret (S)
     #
+    # Returns: {ESRP::Value} private session key (K)
+    #
     def calc_K(ss)
-      # TODO
+      crypto.H(ss)
     end
 
   private
@@ -309,13 +332,23 @@ module ESRP
     # implicitly-converted length of N."
     #
     def pad(value)
-      fail NotImplementedError
+      value
     end
 
     ##
-    # Private:
-    def mod_pow(a, b, m)
-      # TODO
+    # Private: modular exponentation
+    #
+    # As mentioned above, this method reflects '^' operator in SRP
+    # which interprets as 'a^b%N' ('a EXP b MOD N')
+    #
+    # Params:
+    # - a {ESRP::Value}
+    # - b {ESRP::Value}
+    #
+    # Retursn: {ESRP::Value}
+    #
+    def mod_exp(a, b)
+      Value.new(a.int.to_bn.mod_exp(b.int, @N.int).to_i)
     end
   end
 end
