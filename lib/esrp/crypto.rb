@@ -16,7 +16,7 @@ module ESRP
     # - options {Hash} engine options
     #
     def initialize(options={})
-      options = DEFAULT_OPTIONS.merge(options)
+      options = self.class.default_options.merge(options)
       process_options(options)
     end
 
