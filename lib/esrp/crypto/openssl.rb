@@ -27,18 +27,26 @@ module ESRP
       # Constant: list of available hashes
       #
       HASH_CLASSES = {
-        sha:    ::OpenSSL::Digest::SHA,
         sha1:   ::OpenSSL::Digest::SHA1,
         sha256: ::OpenSSL::Digest::SHA256,
         sha384: ::OpenSSL::Digest::SHA384,
         sha512: ::OpenSSL::Digest::SHA512
       }.freeze
 
+      ##
+      # Constant: Allowed hash algorithms
+      #
       ALLOWED_HASH = Set[*HASH_CLASSES.keys].freeze
-      ALLOWED_KDF  = Set['pbkdf2', 'legacy'].freeze
-      ALLOWED_MAC  = Set['hmac', 'legacy'].freeze
 
-      NotApplicableError = Class.new(ArgumentError)
+      ##
+      # Constant: Allowed key derivation functions
+      #
+      ALLOWED_KDF  = Set['pbkdf2', 'legacy'].freeze
+
+      ##
+      # Constant: Allowed message auth functions
+      #`
+      ALLOWED_MAC  = Set['hmac', 'legacy'].freeze
 
       ##
       # Public: SRP's one-way hash function
@@ -127,8 +135,8 @@ module ESRP
       # Returns: {Boolean} true if strings are equal
       #
       def secure_compare(a, b)
-        a = a.hex
-        b = b.hex
+        a = ::OpenSSL::Digest::SHA256.hexdigest(a.hex)
+        b = ::OpenSSL::Digest::SHA256.hexdigest(b.hex)
         return false unless a.bytesize == b.bytesize
 
         l = a.unpack('C*')
@@ -159,7 +167,9 @@ module ESRP
       def set_hash(name)
         hash_name = name.to_s.downcase.tr('-', '').to_sym
 
-        fail NotApplicableError unless ALLOWED_HASH.include?(hash_name)
+        unless ALLOWED_HASH.include?(hash_name)
+          fail NotApplicableError.new("hash: '#{hash_name}' is not a valid option, available options: #{ALLOWED_HASH.to_a.join(', ')}")
+        end
 
         @hasher = HASH_CLASSES[hash_name]
       end
@@ -170,7 +180,9 @@ module ESRP
       def set_kdf(name)
         kdf = name.to_s.downcase
 
-        fail NotApplicableError unless ALLOWED_KDF.include?(kdf)
+        unless ALLOWED_KDF.include?(kdf)
+          fail NotApplicableError.new("kdf: '#{kdf}' is not a valid option, available options: #{ALLOWED_KDF.to_a.join(', ')}")
+        end
 
         @legacy_kdf = kdf == 'legacy'
       end
@@ -181,7 +193,9 @@ module ESRP
       def set_mac(name)
         mac = name.to_s.downcase
 
-        fail NotApplicableError unless ALLOWED_MAC.include?(mac)
+        unless ALLOWED_MAC.include?(mac)
+          fail NotApplicableError.new("mac: '#{mac}' is not a valid option, available options: #{ALLOWED_MAC.to_a.join(', ')}")
+        end
 
         @legacy_mac = mac == 'legacy'
       end

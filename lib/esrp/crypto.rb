@@ -10,6 +10,11 @@ module ESRP
   #
   class Crypto
     ##
+    # Constant: error which fires when option value is not applicable
+    #
+    NotApplicableError = Class.new(ArgumentError)
+
+    ##
     # Constructor:
     #
     # Params:

@@ -3,6 +3,52 @@
 RSpec.describe ESRP::Crypto::OpenSSL do
   let(:instance) { described_class.new(options) }
 
+  describe '.new' do
+    subject { instance }
+
+    context 'when hash name is not applicable' do
+      let(:options) do
+        { hash: hash }
+      end
+      let(:hash) { :blake2b }
+
+      it do
+        expect { subject }.to raise_error(
+          ESRP::Crypto::NotApplicableError,
+          "hash: '#{hash}' is not a valid option, available options: sha1, sha256, sha384, sha512"
+        )
+      end
+    end
+
+    context 'when kdf name is not applicable' do
+      let(:options) do
+        { kdf: kdf }
+      end
+      let(:kdf) { :scrypt }
+
+      it do
+        expect { subject }.to raise_error(
+          ESRP::Crypto::NotApplicableError,
+          "kdf: '#{kdf}' is not a valid option, available options: pbkdf2, legacy"
+        )
+      end
+    end
+
+    context 'when mac name is not applicable' do
+      let(:options) do
+        { mac: mac}
+      end
+      let(:mac) { :foo }
+
+      it do
+        expect { subject }.to raise_error(
+          ESRP::Crypto::NotApplicableError,
+          "mac: '#{mac}' is not a valid option, available options: hmac, legacy"
+        )
+      end
+    end
+  end
+
   describe '#H' do
     subject { instance.H(message).hex }
 
@@ -206,7 +252,7 @@ RSpec.describe ESRP::Crypto::OpenSSL do
 
     context 'when not equal' do
       let(:a) { ESRP::Value.new('00ff3b16b0f555d3feb62f988fb3aab81c1c50ea') }
-      let(:b) { ESRP::Value.new('00ff3b16b0f555d3feb62f988fb3aab81c1c50ee') }
+      let(:b) { ESRP::Value.new('00ff3b16b0f555d3feb62f988fb3aab81c1c50eb') }
 
       it { expect(subject).to be(false) }
     end
