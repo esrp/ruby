@@ -150,13 +150,21 @@ module ESRP
     #
     # or
     #
-    #   M = HMAC(K, s | A | B)
+    #   M = HMAC(K, A | s | B)
     #
     # or similar.
     #
+    # Params:
+    # - kk {ESRP::Value} private session key (K)
+    # - aa {ESRP::Value} client ephemeral value (A)
+    # - bb {ESRP::Value} server ephemeral value (B)
+    # - ss {ESPR::Value} premaster secret (S)
+    # - salt     {ESRP::Value} random generated salt (s)
+    # - username {String} plain-text username in UTF8 string (optional)
+    #
     # Returns: {ESRP::Value} validation message (M)
     #
-    def calc_M(*args)
+    def calc_M(kk, aa, bb, ss, salt, username)
       fail NotImplementedError
     end
 
@@ -176,14 +184,14 @@ module ESRP
     #   M2 = HMAC(K, A | M)
     #
     # Params:
+    # - kk {ESRP::Value} private session key (K)
     # - aa {ESRP::Value} client ephemeral value (A)
     # - mm {ESRP::Value} validation message (M)
-    # - kk {ESRP::Value} private session key (K)
     # - ss {ESPR::Value} premaster secret (S)
     #
     # Returns: {ESRP::Value}
     #
-    def calc_M2(aa, mm, kk, ss)
+    def calc_M2(kk, aa, mm, ss)
       fail NotImplementedError
     end
 
@@ -323,7 +331,7 @@ module ESRP
   private
 
     ##
-    # Abstract Private: left-pad value with zeroes
+    # Private: left-pad value with zeroes
     #
     # According to RFC5054:
     # "If a conversion is explicitly specified with the operator PAD(), the integer
@@ -332,7 +340,7 @@ module ESRP
     # implicitly-converted length of N."
     #
     def pad(value)
-      value
+      Value.new(value.bin.rjust(@N.bin.length, "\x00"))
     end
 
     ##
@@ -345,7 +353,7 @@ module ESRP
     # - a {ESRP::Value}
     # - b {ESRP::Value}
     #
-    # Retursn: {ESRP::Value}
+    # Returns: {ESRP::Value}
     #
     def mod_exp(a, b)
       Value.new(a.int.to_bn.mod_exp(b.int, @N.int).to_i)
