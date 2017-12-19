@@ -98,7 +98,7 @@ RSpec.describe ESRP::Crypto::RbNaCl do
   describe '#keyed_hash' do
     subject { instance.keyed_hash(key, msg).hex }
 
-    let(:key) { ESRP::Value.new('abcd') }
+    let(:key) { ESRP::Value.new('f4ffd830b255f778b9d88966e87ae1d72702227cfcbeae4bd1e4b39fff136060') }
     let(:msg) { ESRP::Value.new('07c0') }
 
     context 'when mac: :hmac' do
@@ -109,21 +109,20 @@ RSpec.describe ESRP::Crypto::RbNaCl do
       context 'when hash: :sha256' do
         let(:hash) { :sha256 }
 
-        it { expect(subject).to eql('2975112b38aaaa32e06799b25fba6dbe03a9420aea1184173736c59f9345dcae') }
+        it { expect(subject).to eql('ecfa17f317164259824287aa9feabeda9c784e7d672b118965ebff33f5373abe') }
       end
 
       context 'when hash: :sha512' do
         let(:hash) { :sha512 }
 
-        it { expect(subject).to eql('5dab373651dbca7a5f637ffc1c0c4a64b3aba8b0821ce048590063c2aea3340e999e077483ec98771eda325ec9d0cafc2a4160d188262f52b876bc0c07877c3d') }
+        it { expect(subject).to eql('8a93a38e2f274f99cdd25be0620bcee180e1cec062b22b09c314b051edf51ab3fb221b191e569d500bce1708f0e6ed7b745a1df6575c05c7ed5742a78ca7ad71') }
       end
 
       context 'when hash: :blake2b' do
         let(:hash) { :blake2b }
 
-        it { expect(subject).to eql('2975112b38aaaa32e06799b25fba6dbe03a9420aea1184173736c59f9345dcae') }
+        it { expect(subject).to eql('ecfa17f317164259824287aa9feabeda9c784e7d672b118965ebff33f5373abe') }
       end
     end
   end
-
 end

@@ -165,7 +165,7 @@ RSpec.describe ESRP::Crypto::OpenSSL do
   describe '#keyed_hash' do
     subject { instance.keyed_hash(key, msg).hex }
 
-    let(:key) { ESRP::Value.new('abcd') }
+    let(:key) { ESRP::Value.new('f4ffd830b255f778b9d88966e87ae1d72702227cfcbeae4bd1e4b39fff136060') }
     let(:msg) { ESRP::Value.new('07c0') }
 
     context 'when mac: :hmac' do
@@ -176,25 +176,25 @@ RSpec.describe ESRP::Crypto::OpenSSL do
       context 'when hash: :sha1' do
         let(:hash) { :sha1 }
 
-        it { expect(subject).to eql('66b94122dc788495c7a962d8b98b59ce6af9be8b') }
+        it { expect(subject).to eql('d11bbc50282edef28dbd924a8d034621ae18bba0') }
       end
 
       context 'when hash: :sha256' do
         let(:hash) { :sha256 }
 
-        it { expect(subject).to eql('2975112b38aaaa32e06799b25fba6dbe03a9420aea1184173736c59f9345dcae') }
+        it { expect(subject).to eql('ecfa17f317164259824287aa9feabeda9c784e7d672b118965ebff33f5373abe') }
       end
 
       context 'when hash: :sha384' do
         let(:hash) { :sha384 }
 
-        it { expect(subject).to eql('c8bfc04a07bd0d6f0046331c370c0e9cb6151338694776fdadb672e86f9bb700346da475f330ddc62c739c3517abe2a8') }
+        it { expect(subject).to eql('99d890c210a33198ea612fbe8d469950f8bb16f1dbd4b68e79d6306d0eff142fb237be16abb09c22b08a5bdf76a56607') }
       end
 
       context 'when hash: :sha512' do
         let(:hash) { :sha512 }
 
-        it { expect(subject).to eql('5dab373651dbca7a5f637ffc1c0c4a64b3aba8b0821ce048590063c2aea3340e999e077483ec98771eda325ec9d0cafc2a4160d188262f52b876bc0c07877c3d') }
+        it { expect(subject).to eql('8a93a38e2f274f99cdd25be0620bcee180e1cec062b22b09c314b051edf51ab3fb221b191e569d500bce1708f0e6ed7b745a1df6575c05c7ed5742a78ca7ad71') }
       end
     end
 
@@ -206,25 +206,25 @@ RSpec.describe ESRP::Crypto::OpenSSL do
       context 'when hash: :sha1' do
         let(:hash) { :sha1 }
 
-        it { expect(subject).to eql('a19b96e98cae5ba7b41a8a389bdb61cebe2d0a17') }
+        it { expect(subject).to eql('370422c37f40c245bcc614c733ad39c7b796bed6') }
       end
 
       context 'when hash: :sha256' do
         let(:hash) { :sha256 }
 
-        it { expect(subject).to eql('c9acde151ea824509dbf03801b1823776037b9bc1596930359657966159b29b0') }
+        it { expect(subject).to eql('72cd133608ddfae3ebeb26b757c0b825bb4195c2153be5a7a543ed7212c18949') }
       end
 
       context 'when hash: :sha384' do
         let(:hash) { :sha384 }
 
-        it { expect(subject).to eql('673380f8736d89cce61c211b813d9098c226bac4c707755e029a9567b0ba07e4fe05513b413b16c93d8173d7e7656d3a') }
+        it { expect(subject).to eql('8fb3c4a42f47946c0fb686670810462a8b87aa3eb49d491c73380bdeddd1799a94a2d8fd0114efea3f6de5edd00f91eb') }
       end
 
       context 'when hash: :sha512' do
         let(:hash) { :sha512 }
 
-        it { expect(subject).to eql('e1d9ff539354a19735591e2aadf544200219d45986e9c99ba3b477e5eb65eaacad32988a11ec95d5752294e6279661875ce558f663d9d006bc3914b28453c52d') }
+        it { expect(subject).to eql('d4705eedc57fc61e5f0e73081c804bd065f176bb1db8be2bec75a90372c418dc658279f57d4e339870c5e88e40ee8387eae92d010b7c9cb6d42fc8f1f6765a85') }
       end
     end
   end
