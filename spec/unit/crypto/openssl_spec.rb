@@ -229,13 +229,38 @@ RSpec.describe ESRP::Crypto::OpenSSL do
     end
   end
 
-  describe '#random' do
-    subject { instance.random(length).bin }
+  describe '#salt' do
+    subject { instance.salt.bin }
 
-    let(:length) { rand(1..64) }
+    context 'when kdf: :legacy' do
+
+    end
+
+    context 'when kdf: :pbkdf2' do
+
+    end
+  end
+
+  describe '#random' do
+    subject { instance.random.bin }
+
     let(:options) { Hash.new }
 
-    it { expect(subject.length).to eql(length) }
+    context 'when hash: :sha1' do
+      it { expect(subject.length).to equal(20) }
+    end
+
+    context 'when hash: :sha256' do
+      it { expect(subject.length).to equal(32) }
+    end
+
+    context 'when hash: :sha384' do
+      it { expect(subject.length).to equal(48) }
+    end
+
+    context 'when hash: :sha512' do
+      it { expect(subject.length).to equal(64) }
+    end
   end
 
   describe '#secure_compare' do

@@ -111,6 +111,10 @@ module ESRP
         Value.new(result)
       end
 
+      def salt
+
+      end
+
       ##
       # Abstract Public: random string generator
       #
@@ -119,7 +123,7 @@ module ESRP
       #
       # Returns: {ESRP::Value}
       #
-      def random(bytes_length)
+      def random(bytes_length=nil)
         Value.new(::OpenSSL::Random.random_bytes(bytes_length))
       end
 

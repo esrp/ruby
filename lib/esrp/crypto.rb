@@ -75,6 +75,17 @@ module ESRP
     end
 
     ##
+    # Abstract Public: generate salt
+    #
+    # The length of random for salt depends on KDF algorithm
+    #
+    # Returns: {ESRP::Value}
+    #
+    def salt
+      fail NotImplementedError
+    end
+
+    ##
     # Abstract Public: random string generator
     #
     # Params:

@@ -79,7 +79,7 @@ module ESRP
       #
       # Returns: {ESRP::Value}
       #
-      def random(bytes_length)
+      def random(bytes_length=nil)
         Value.new(::RbNaCl::Random.random_bytes(bytes_length))
       end
 
