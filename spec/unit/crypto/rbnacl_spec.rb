@@ -126,4 +126,40 @@ RSpec.describe ESRP::Crypto::RbNaCl do
     end
   end
 
+  describe '#salt' do
+    subject { instance.salt.bin }
+
+    let(:options) do
+      { mac: :hmac, hash: hash }
+    end
+
+    context 'when hash: :blake2b' do
+      let(:hash) { :blake2b }
+
+      it { expect(subject.length).to equal(64)  }
+    end
+
+    context 'when hash: :sha256' do
+      let(:hash) { :sha256 }
+      
+      it { expect(subject.length).to equal(32) }
+    end
+
+    context 'when hash: :sha512' do
+      let(:hash) { :sha512 }
+
+      it { expect(subject.length).to equal(64) }
+    end
+  end
+
+  describe '#random' do
+    subject { instance.random(length).bin }
+
+    let(:options) { Hash.new }
+    let(:length)  { 8 }
+
+    context 'when bytes_length custom' do
+      it { expect(subject.length).to equal(length) }
+    end
+  end
 end

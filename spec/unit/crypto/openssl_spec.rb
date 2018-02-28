@@ -1,4 +1,4 @@
-  # frozen_string_literal: true
+# frozen_string_literal: true
 
 RSpec.describe ESRP::Crypto::OpenSSL do
   let(:instance) { described_class.new(options) }
@@ -274,7 +274,7 @@ RSpec.describe ESRP::Crypto::OpenSSL do
   end
 
   describe '#random' do
-    subject { instance.random(size).bin }
+    subject { instance.random(length).bin }
 
     let(:options) { Hash.new }
     let(:length)  { 8 }
