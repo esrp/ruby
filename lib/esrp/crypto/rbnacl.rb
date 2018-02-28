@@ -97,7 +97,7 @@ module ESRP
       #
       # Returns: {ESRP::Value}
       #
-      def random(bytes_length=@hash_size)
+      def random(bytes_length=@digest_size)
         Value.new(::RbNaCl::Random.random_bytes(bytes_length))
       end
 
@@ -125,8 +125,6 @@ module ESRP
       # Private: process crypto options
       #
       def process_options(options)
-        @hash_size = HASH_SIZES[options[:hash].to_sym]
-
         set_hash(options[:hash], options[:blake_digest_size])
         set_kdf(options[:kdf], options[:kdf_options] || {})
         set_mac

@@ -136,7 +136,13 @@ RSpec.describe ESRP::Crypto::RbNaCl do
     context 'when hash: :blake2b' do
       let(:hash) { :blake2b }
 
-      it { expect(subject.length).to equal(64)  }
+      it { expect(subject.length).to equal(32)  }
+
+      context 'when blake2b digest_size is 32' do
+        before { options[:blake_digest_size] = 64 }
+          
+        it { expect(subject.length).to equal(64) }
+      end
     end
 
     context 'when hash: :sha256' do
