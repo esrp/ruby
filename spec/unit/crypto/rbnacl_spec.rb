@@ -129,8 +129,35 @@ RSpec.describe ESRP::Crypto::RbNaCl do
   describe '#salt' do
     subject { instance.salt.bin }
 
+    context 'kdf options :scrypt' do
+      let(:options) { Hash.new }
+
+      it { expect(subject.length).to equal(32) }
+    end
+
+    context 'kedf options :argon2' do
+      let(:options) do 
+        { kdf: 'argon2' }
+      end
+
+      it { expect(subject.length).to equal(16) }
+    end
+  end
+
+  describe '#random' do
+    subject { instance.random.bin }
+
     let(:options) do
       { mac: :hmac, hash: hash }
+    end
+
+    context 'when bytes_length custom' do
+      subject { instance.random(length).bin }
+      
+      let(:options) { Hash.new }
+      let(:length)  { 8 }
+
+      it { expect(subject.length).to equal(length) }
     end
 
     context 'when hash: :blake2b' do
@@ -155,17 +182,6 @@ RSpec.describe ESRP::Crypto::RbNaCl do
       let(:hash) { :sha512 }
 
       it { expect(subject.length).to equal(64) }
-    end
-  end
-
-  describe '#random' do
-    subject { instance.random(length).bin }
-
-    let(:options) { Hash.new }
-    let(:length)  { 8 }
-
-    context 'when bytes_length custom' do
-      it { expect(subject.length).to equal(length) }
     end
   end
 end
