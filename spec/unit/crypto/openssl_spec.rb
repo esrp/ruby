@@ -241,25 +241,46 @@ RSpec.describe ESRP::Crypto::OpenSSL do
     end
   end
 
-  describe '#random' do
-    subject { instance.random.bin }
+  describe '#salt' do
+    subject { instance.salt.bin }
 
-    let(:options) { Hash.new }
+    let(:options) do
+      { mac: :hmac, hash: hash }
+    end
 
     context 'when hash: :sha1' do
-      it { expect(subject.length).to equal(20) }
+      let(:hash) { :SHA1 }
+
+      it { expect(subject.length).to equal(20)  }
     end
 
     context 'when hash: :sha256' do
+      let(:hash) { :SHA256 }
+      
       it { expect(subject.length).to equal(32) }
     end
 
     context 'when hash: :sha384' do
+      let(:hash) { :SHA384 }
+      
       it { expect(subject.length).to equal(48) }
     end
 
     context 'when hash: :sha512' do
+      let(:hash) { :SHA512 }
+
       it { expect(subject.length).to equal(64) }
+    end
+  end
+
+  describe '#random' do
+    subject { instance.random(length).bin }
+
+    let(:options) { Hash.new }
+    let(:length)  { 8 }
+
+    context 'when bytes_length custom' do
+      it { expect(subject.length).to equal(length) }
     end
   end
 

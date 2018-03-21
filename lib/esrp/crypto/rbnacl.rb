@@ -23,6 +23,15 @@ module ESRP
       }.freeze
 
       ##
+      # Constans: list of hash sizes
+      #
+      HASH_SIZES = {
+        blake2b: 64,
+        sha256: 32,
+        sha512: 64
+      }.freeze
+
+      ##
       # Constant: Allowed key derivation functions
       #
       ALLOWED_KDF  = Set[*KDF_CLASSES.keys].freeze
@@ -72,6 +81,15 @@ module ESRP
       end
 
       ##
+      # Abstract Public: generate salt
+      #
+      # Returns: {ESRP::Value}
+      #
+      def salt
+        random(@kdf::SALTBYTES)
+      end
+
+      ##
       # Public: random string generator
       #
       # Params:
@@ -79,7 +97,7 @@ module ESRP
       #
       # Returns: {ESRP::Value}
       #
-      def random(bytes_length=nil)
+      def random(bytes_length=@digest_size)
         Value.new(::RbNaCl::Random.random_bytes(bytes_length))
       end
 

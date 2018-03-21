@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 require 'openssl'
+require 'set'
 
 module ESRP
   class Crypto
@@ -31,6 +32,16 @@ module ESRP
         sha256: ::OpenSSL::Digest::SHA256,
         sha384: ::OpenSSL::Digest::SHA384,
         sha512: ::OpenSSL::Digest::SHA512
+      }.freeze
+
+      ##
+      # Constans: list of hash sizes
+      #
+      HASH_SIZES = {
+        SHA1: 20,
+        SHA256: 32,
+        SHA384: 48,
+        SHA512: 64
       }.freeze
 
       ##
@@ -111,8 +122,13 @@ module ESRP
         Value.new(result)
       end
 
+      ##
+      # Abstract Public: generate salt
+      #
+      # Returns: {ESRP::Value}
+      #
       def salt
-
+        random
       end
 
       ##
@@ -123,7 +139,7 @@ module ESRP
       #
       # Returns: {ESRP::Value}
       #
-      def random(bytes_length=nil)
+      def random(bytes_length=@hash_size)
         Value.new(::OpenSSL::Random.random_bytes(bytes_length))
       end
 
@@ -159,6 +175,7 @@ module ESRP
       def process_options(options)
         @hex = options[:hex]
         @kdf_iter = options[:kdf_iter]
+        @hash_size = HASH_SIZES[options[:hash].to_sym]
 
         set_hash(options[:hash])
         set_kdf(options[:kdf])

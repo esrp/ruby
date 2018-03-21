@@ -126,4 +126,78 @@ RSpec.describe ESRP::Crypto::RbNaCl do
     end
   end
 
+  describe '#salt' do
+    subject { instance.salt.bin }
+
+    context 'with empty kdf' do
+      let(:options) { Hash.new }
+
+      it { expect(subject.length).to equal(32) }
+    end
+
+    context 'kdf options :scrypt' do
+      let(:options) do
+        { kdf: 'scrypt' }
+      end
+
+      it { expect(subject.length).to equal(32) }
+    end
+
+    context 'kdf options :argon2' do
+      let(:options) do 
+        { kdf: 'argon2' }
+      end
+
+      it { expect(subject.length).to equal(16) }
+    end
+
+    context 'when kdf is wrong' do
+      let(:options) do
+        { kdf: 'non_kdf' }
+      end
+
+      it { expect { instance }.to raise_error(ESRP::Crypto::NotApplicableError) }
+    end
+  end
+
+  describe '#random' do
+    subject { instance.random.bin }
+
+    let(:options) do
+      { mac: :hmac, hash: hash }
+    end
+
+    context 'when bytes_length custom' do
+      subject { instance.random(length).bin }
+      
+      let(:options) { Hash.new }
+      let(:length)  { Random.rand(100) }
+
+      it { expect(subject.length).to equal(length) }
+    end
+
+    context 'when hash: :blake2b' do
+      let(:hash) { :blake2b }
+
+      it { expect(subject.length).to equal(32)  }
+
+      context 'when blake2b digest_size is 32' do
+        before { options[:blake_digest_size] = 64 }
+          
+        it { expect(subject.length).to equal(64) }
+      end
+    end
+
+    context 'when hash: :sha256' do
+      let(:hash) { :sha256 }
+      
+      it { expect(subject.length).to equal(32) }
+    end
+
+    context 'when hash: :sha512' do
+      let(:hash) { :sha512 }
+
+      it { expect(subject.length).to equal(64) }
+    end
+  end
 end
