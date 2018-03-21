@@ -23,14 +23,6 @@ module ESRP
       }.freeze
 
       ##
-      # Constants: lisf of KDF required salt sizes
-      #
-      KDF_SALT_SIZES = {
-        ::RbNaCl::PasswordHash::SCrypt => 32,
-        ::RbNaCl::PasswordHash::Argon2 => 16
-      }.freeze
-
-      ##
       # Constans: list of hash sizes
       #
       HASH_SIZES = {
@@ -94,7 +86,7 @@ module ESRP
       # Returns: {ESRP::Value}
       #
       def salt
-        random(KDF_SALT_SIZES[@kdf])
+        random(@kdf::SALTBYTES)
       end
 
       ##
