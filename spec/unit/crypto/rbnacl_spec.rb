@@ -129,18 +129,34 @@ RSpec.describe ESRP::Crypto::RbNaCl do
   describe '#salt' do
     subject { instance.salt.bin }
 
-    context 'kdf options :scrypt' do
+    context 'with empty kdf' do
       let(:options) { Hash.new }
 
       it { expect(subject.length).to equal(32) }
     end
 
-    context 'kedf options :argon2' do
+    context 'kdf options :scrypt' do
+      let(:options) do
+        { kdf: 'scrypt' }
+      end
+
+      it { expect(subject.length).to equal(32) }
+    end
+
+    context 'kdf options :argon2' do
       let(:options) do 
         { kdf: 'argon2' }
       end
 
       it { expect(subject.length).to equal(16) }
+    end
+
+    context 'when kdf is wrong' do
+      let(:options) do
+        { kdf: 'non_kdf' }
+      end
+
+      it { expect { instance }.to raise_error(ESRP::Crypto::NotApplicableError) }
     end
   end
 
@@ -155,7 +171,7 @@ RSpec.describe ESRP::Crypto::RbNaCl do
       subject { instance.random(length).bin }
       
       let(:options) { Hash.new }
-      let(:length)  { 8 }
+      let(:length)  { Random.rand(100) }
 
       it { expect(subject.length).to equal(length) }
     end
